@@ -1,0 +1,19 @@
+server:
+  port: 8091 # 클라이언트 포트
+
+spring:
+  application:
+    name: performance-test-client
+
+grpc:
+  client:
+    member-service:
+      address: static://localhost:50051
+      negotiationType: PLAINTEXT
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
