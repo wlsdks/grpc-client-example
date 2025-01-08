@@ -15,6 +15,13 @@ public class PerformanceTestController {
 
     private final PerformanceTestService performanceTestService;
 
+    /**
+     * 성능 테스트 실행 (일반 테스트)
+     *
+     * @param totalRequests      총 요청 수 (기본값: 10000)
+     * @param concurrentRequests 동시 요청 수 (기본값: 100)
+     * @return 테스트 결과 메시지
+     */
     @PostMapping("/performance")
     public ResponseEntity<String> runPerformanceTest(
             @RequestParam(defaultValue = "10000") int totalRequests,
