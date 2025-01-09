@@ -24,7 +24,7 @@ public class PerformanceTestController {
      */
     @PostMapping("/performance")
     public ResponseEntity<String> runPerformanceTest(
-            @RequestParam(defaultValue = "10000") int totalRequests,
+            @RequestParam(defaultValue = "1000") int totalRequests,
             @RequestParam(defaultValue = "100") int concurrentRequests) {
         performanceTestService.runPerformanceTest(totalRequests, concurrentRequests);
         return ResponseEntity.ok("성능 테스트가 완료되었습니다. 로그를 확인해주세요.");

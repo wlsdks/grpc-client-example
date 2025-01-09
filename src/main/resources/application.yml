@@ -9,7 +9,7 @@ grpc:
   client:
     member-service:
       address: static://localhost:50051
-      negotiationType: PLAINTEXT
+      negotiationType: PLAINTEXT # 보안 설정
 
 feign:
   client:
