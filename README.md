@@ -14,16 +14,33 @@
 
 ## 애플리케이션 실행 방법
 
-먼저 gradle을 사용하여 프로젝트를 빌드합니다:
+먼저 gradle을 사용하여 프로젝트를 빌드합니다.
 
 ```bash
 ./gradlew clean build
 ```
 
-그 다음, 애플리케이션을 실행합니다:
+### 빌드 결과물
+
+Gradle 빌드가 완료되면 `build/libs` 디렉토리에 다음과 같은 JAR 파일이 생성됩니다.
+
+1. **grpc-client-0.0.1.jar**:
+    - 실행 가능한 JAR 파일 (Spring Boot 애플리케이션).
+    - 내부적으로 애플리케이션 실행에 필요한 모든 의존성을 포함합니다.
+    - 애플리케이션 실행에 사용됩니다.
+
+2. **grpc-client-0.0.1-plain.jar**:
+    - 일반 JAR 파일.
+    - 라이브러리로 다른 프로젝트에서 의존성으로 사용될 수 있습니다.
+    - 실행이 불가능하며, 소스 코드와 리소스만 포함합니다.
+
+
+
+### 빌드가 완료되면 애플리케이션을 실행합니다.
+- 실행 가능한 JAR 파일(`grpc-client-0.0.1.jar`)을 사용하여 애플리케이션을 실행합니다.
 
 ```bash
-java -jar build/libs/performance-test-client-0.0.1-SNAPSHOT.jar
+java -jar build/libs/grpc-client-0.0.1.jar
 ```
 
 애플리케이션은 기본적으로 8091 포트에서 실행됩니다.
@@ -32,8 +49,17 @@ java -jar build/libs/performance-test-client-0.0.1-SNAPSHOT.jar
 
 성능 테스트는 HTTP API를 통해 실행할 수 있습니다. 다음 엔드포인트를 사용하여 테스트를 시작할 수 있습니다:
 
+- 일반 gRPC 성능 테스트
 ```bash
 curl -X POST "http://localhost:8091/test/performance?totalRequests=10000&concurrentRequests=100"
+```
+- 압축 gRPC 성능 테스트
+```bash
+curl -X POST "http://localhost:8091/test/advanced-performance?totalRequests=1000&concurrentRequests=100"
+```
+- 스트리밍 gRPC 성능 테스트
+```bash
+curl -X POST "http://localhost:8091/test/streaming"
 ```
 
 매개변수 설명:
@@ -49,7 +75,7 @@ curl -X POST "http://localhost:8091/test/performance?totalRequests=10000&concurr
 - 최소/최대 응답 시간
 - 초당 처리량(throughput)
 
-예시 로그 출력:
+일반 gRPC 테스트 예시 로그 출력:
 ```
 === HTTP 테스트 결과 ===
 총 실행 시간: 633ms
@@ -72,27 +98,34 @@ curl -X POST "http://localhost:8091/test/performance?totalRequests=10000&concurr
 99번째 백분위 응답 시간: 133ms
 ```
 
+## 스트리밍 테스트 상세 설명
+
+스트리밍 gRPC 테스트는 다수의 요청을 스트림 형태로 서버에 보내고, 각 요청에 대한 응답을 스트림 형태로 받습니다. 이 테스트는 다음을 확인합니다:
+
+1. 스트리밍 요청-응답의 동작 확인
+2. 스트리밍 처리량 검증
+3. 비동기 통신 안정성 평가
+
+현재 기본적으로 10개의 요청을 전송하며, 필요 시 요청 수를 확장하여 대규모 스트리밍 테스트를 수행할 수 있습니다.
+
 ## 주의사항
-
-1. 첫 번째 테스트 실행은 JVM 웜업 효과로 인해 실제보다 높은 지연 시간을 보일 수 있습니다. 정확한 측정을 위해서는 여러 번의 테스트를 수행하는 것이 좋습니다.
-
+1. 첫 번째 테스트 실행은 JVM 웜업 효과로 인해 실제보다 높은 지연 시간을 보일 수 있습니다. 정확한 측정을 위해 여러 번의 테스트를 수행하는 것이 좋습니다.
 2. 테스트를 실행하기 전에 반드시 서버 애플리케이션이 실행 중이어야 합니다.
-
-3. 운영 환경과 유사한 조건에서 테스트하기 위해서는 다음 사항을 고려하세요:
+3. 운영 환경과 유사한 조건에서 테스트하기 위해 다음 사항을 고려하세요:
     - 서버와 클라이언트를 다른 머신에서 실행
     - 다양한 크기의 페이로드로 테스트
     - 네트워크 지연이 있는 환경에서의 테스트
 
-## 문제 해결
-
-만약 "ObjectOptimisticLockingFailureException" 오류가 발생한다면, 이는 동시에 같은 데이터를 저장하려고 시도하기 때문입니다. 이 문제는 테스트 요청마다 고유한 데이터를 생성하도록 설계되어 있어 발생하지 않아야 합니다.
-
 ## 추가 설정
 
 필요한 경우 `application.yml` 파일에서 다음 설정을 수정할 수 있습니다:
+
 - 서버 포트
 - gRPC 서버 주소
 - HTTP 서버 주소
 - Feign 클라이언트 타임아웃 설정
 
-이 테스트 클라이언트를 통해 실제 마이크로서비스 환경에서 gRPC와 HTTP의 성능 차이를 정확하게 측정하고 비교할 수 있습니다.
+## 프로젝트 목적
+
+이 테스트 클라이언트를 통해 실제 마이크로서비스 환경에서 gRPC와 HTTP의 성능 차이를 정확하게 측정하고 비교할 수 있습니다. 
+다양한 요청 패턴과 처리 방식에 대해 평가하여 적합한 프로토콜을 선택하는 데 도움이 됩니다.

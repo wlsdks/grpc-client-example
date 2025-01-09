@@ -6,12 +6,22 @@ plugins {
 }
 
 group = 'com.demo'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+}
+
+jar {
+	archiveBaseName.set('grpc-client') // 일반 JAR 이름
+	archiveVersion.set(version)
+}
+
+bootJar {
+	archiveBaseName.set('grpc-client') // 실행 가능한 JAR 이름
+	archiveVersion.set(version)
 }
 
 configurations {
