@@ -37,7 +37,7 @@ public class GrpcCompressedClient {
                 .build();
 
         MemberProto.MemberCreateResponse response = compressedStub.createMember(request);
-        System.out.println("압축 응답: " + response);
+//        System.out.println("압축 응답: " + response);
     }
 
 }
