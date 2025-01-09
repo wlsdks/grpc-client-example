@@ -51,7 +51,7 @@ java -jar build/libs/grpc-client-0.0.1.jar
 
 - 일반 gRPC 성능 테스트
 ```bash
-curl -X POST "http://localhost:8091/test/performance?totalRequests=10000&concurrentRequests=100"
+curl -X POST "http://localhost:8091/test/performance?totalRequests=1000&concurrentRequests=100"
 ```
 - 압축 gRPC 성능 테스트
 ```bash
@@ -63,7 +63,7 @@ curl -X POST "http://localhost:8091/test/streaming"
 ```
 
 매개변수 설명:
-- totalRequests: 전체 요청 수 (기본값: 10000)
+- totalRequests: 전체 요청 수 (기본값: 1000)
 - concurrentRequests: 동시 요청 수 (기본값: 100)
 
 ## 테스트 결과 해석
