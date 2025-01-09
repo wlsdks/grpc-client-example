@@ -1,5 +1,6 @@
 package com.demo.grpc_client.client;
 
+import com.demo.grpc_client.dto.MemberSignUpRequestDTO;
 import com.test.member.grpc.MemberProto;
 import com.test.member.grpc.MemberServiceGrpc;
 import io.grpc.Channel;
@@ -20,7 +21,7 @@ public class GrpcCompressedClient {
     /**
      * @apiNote 압축된 요청을 생성하여 서버로 전송하는 메서드
      */
-    public void createMemberWithCompression() {
+    public void createMemberWithCompression(MemberSignUpRequestDTO dto) {
         Metadata metadata = new Metadata();
         metadata.put(Metadata.Key.of("grpc-encoding", Metadata.ASCII_STRING_MARSHALLER), "gzip");
 
@@ -29,15 +30,15 @@ public class GrpcCompressedClient {
 
         // 요청 생성 및 전송
         MemberProto.MemberRequest request = MemberProto.MemberRequest.newBuilder()
-                .setEmail("compressed@test.com")
-                .setPassword("compressed_password")
-                .setName("Compressed User")
-                .setProfileImageBase64("Base64Data")
-                .setEtcInfo("Compressed Info")
+                .setId(dto.getId())
+                .setEmail(dto.getEmail())
+                .setPassword(dto.getPassword())
+                .setName(dto.getName())
+                .setProfileImageBase64(dto.getProfileImageBase64())
+                .setEtcInfo(dto.getEtcInfo())
                 .build();
 
-        MemberProto.MemberCreateResponse response = compressedStub.createMember(request);
-//        System.out.println("압축 응답: " + response);
+        compressedStub.createMember(request);
     }
 
 }

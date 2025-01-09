@@ -130,14 +130,14 @@ public class PerformanceTestService {
 
     private MemberSignUpRequestDTO createTestRequest() {
         String uniqueId = UUID.randomUUID().toString();
-        return MemberSignUpRequestDTO.of(
-                System.nanoTime(), // 고유한 ID 생성
-                "test_" + uniqueId + "@test.com",
-                "password_" + uniqueId,
-                "name_" + uniqueId,
-                "profile_" + uniqueId,
-                "info_" + uniqueId
-        );
+        return MemberSignUpRequestDTO.builder()
+                .id(System.nanoTime()) // 고유한 ID 생성
+                .email("test_" + uniqueId + "@test.com")
+                .password("password_" + uniqueId)
+                .name("name_" + uniqueId)
+                .profileImageBase64("a".repeat(1024 * 1024) + uniqueId)
+                .etcInfo("info_" + uniqueId)
+                .build();
     }
 
 }

@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +62,7 @@ public class AdvancedPerformanceTestService {
     private List<Long> runGrpcTest(int totalRequests, int concurrentRequests) {
         return runTest(totalRequests, concurrentRequests, () -> {
             MemberSignUpRequestDTO request = createTestRequest();
-            grpcClient.createMember(request);
+            grpcClient.createMember(request); // 단일 요청 수행
         });
     }
 
@@ -76,7 +77,7 @@ public class AdvancedPerformanceTestService {
                 .email("test_" + uniqueId + "@test.com")
                 .password("password_" + uniqueId)
                 .name("name_" + uniqueId)
-                .profileImageBase64("profile_" + uniqueId)
+                .profileImageBase64("a".repeat(1024 * 1024) + uniqueId)
                 .etcInfo("info_" + uniqueId)
                 .build();
     }
@@ -88,7 +89,10 @@ public class AdvancedPerformanceTestService {
      * @apiNote 압축 gRPC 요청의 성능을 테스트합니다.
      */
     private List<Long> runCompressedGrpcTest(int totalRequests, int concurrentRequests) {
-        return runTest(totalRequests, concurrentRequests, grpcCompressedClient::createMemberWithCompression);
+        return runTest(totalRequests, concurrentRequests, () -> {
+            MemberSignUpRequestDTO request = createTestRequest();
+            grpcCompressedClient.createMemberWithCompression(request); // 단일 요청 수행
+        });
     }
 
     /**
@@ -101,6 +105,7 @@ public class AdvancedPerformanceTestService {
     private List<Long> runTest(int totalRequests, int concurrentRequests, Runnable requestTask) {
         ExecutorService executorService = Executors.newFixedThreadPool(concurrentRequests);
         List<CompletableFuture<Long>> futures = new ArrayList<>();
+        List<Throwable> errors = new ArrayList<>(); // 실패 이유 저장
 
         for (int i = 0; i < totalRequests; i++) {
             futures.add(CompletableFuture.supplyAsync(() -> {
@@ -109,20 +114,29 @@ public class AdvancedPerformanceTestService {
                     requestTask.run();
                     return Duration.between(start, Instant.now()).toMillis();
                 } catch (Exception e) {
+                    errors.add(e); // 실패 이유 기록
                     log.error("요청 실패: ", e);
-                    return -1L; // 실패한 요청 표시
+                    return null;
                 }
             }, executorService));
         }
 
         List<Long> latencies = futures.stream()
                 .map(CompletableFuture::join)
-                .filter(latency -> latency > 0) // 실패한 요청 제외
+                .filter(Objects::nonNull) // 실패한 요청 제외
                 .collect(Collectors.toList());
 
         executorService.shutdown();
+
+        // 실패 이유 출력
+        if (!errors.isEmpty()) {
+            log.error("총 실패 요청 수: {}", errors.size());
+            errors.forEach(error -> log.error("에러 세부 정보: ", error));
+        }
+
         return latencies;
     }
+
 
     /**
      * @param protocol      테스트 프로토콜 (예: gRPC, Compressed gRPC)

@@ -17,19 +17,20 @@ public class GrpcMemberClient {
 
     /**
      * 회원 생성
+     *
      * @param dto : MemberSignUpRequestDTO
-     * @return MemberProto.MemberCreateResponse
      */
-    public MemberProto.MemberCreateResponse createMember(MemberSignUpRequestDTO dto) {
+    public void createMember(MemberSignUpRequestDTO dto) {
         MemberProto.MemberRequest request = MemberProto.MemberRequest.newBuilder()
                 .setEmail(dto.getEmail())
                 .setPassword(dto.getPassword())
                 .setName(dto.getName())
-                .setProfileImageBase64(dto.getProfileImageBase64())
+                .setProfileImageBase64("a".repeat(1024 * 1024)) // 1MB 데이터 전송
                 .setEtcInfo(dto.getEtcInfo())
                 .build();
 
-        return memberStub.createMember(request);
+        // 단일 요청 전송
+        memberStub.createMember(request);
     }
 
 }
