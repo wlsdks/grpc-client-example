@@ -4,27 +4,26 @@ import com.demo.grpc_client.dto.MemberSignUpRequestDTO;
 import com.demo.grpc_client.service.MemberGrpcClientService;
 import com.test.member.grpc.MemberProto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Slf4j
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
+@RestController
 public class MemberController {
+
     private final MemberGrpcClientService memberGrpcClientService;
 
     @PostMapping
     public ResponseEntity<MemberProto.MemberCreateResponse> createMember(
             @RequestBody MemberSignUpRequestDTO request
     ) {
-        // SecurityContext에서 인증 정보를 가져옵니다
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
+        log.debug("Received member creation request for email: {}", request.getEmail());
 
         // gRPC 요청 객체 생성
         MemberProto.MemberRequest grpcRequest = MemberProto.MemberRequest.newBuilder()
