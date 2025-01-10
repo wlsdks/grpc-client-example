@@ -9,7 +9,9 @@ grpc:
   client:
     member-service:
       address: static://localhost:50051
-      negotiationType: PLAINTEXT # 보안 설정
+      negotiationType: PLAINTEXT
+  server:
+    enabled: false  # 서버 기능을 비활성화
 
 feign:
   client:
