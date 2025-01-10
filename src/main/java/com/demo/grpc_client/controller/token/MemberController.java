@@ -1,6 +1,7 @@
 package com.demo.grpc_client.controller.token;
 
 import com.demo.grpc_client.dto.MemberSignUpRequestDTO;
+import com.demo.grpc_client.dto.ResponseMemberDTO;
 import com.demo.grpc_client.service.MemberGrpcClientService;
 import com.test.member.grpc.MemberProto;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +21,7 @@ public class MemberController {
     private final MemberGrpcClientService memberGrpcClientService;
 
     @PostMapping
-    public ResponseEntity<MemberProto.MemberCreateResponse> createMember(
-            @RequestBody MemberSignUpRequestDTO request
-    ) {
-        log.debug("Received member creation request for email: {}", request.getEmail());
-
+    public ResponseEntity<ResponseMemberDTO> createMember(@RequestBody MemberSignUpRequestDTO request) {
         // gRPC 요청 객체 생성
         MemberProto.MemberRequest grpcRequest = MemberProto.MemberRequest.newBuilder()
                 .setEmail(request.getEmail())
@@ -34,8 +31,17 @@ public class MemberController {
                 .setEtcInfo(request.getEtcInfo())
                 .build();
 
-        // 토큰은 gRPC 클라이언트 서비스 내부에서 SecurityContext를 통해 접근할 수 있습니다
-        return ResponseEntity.ok(memberGrpcClientService.createMember(grpcRequest));
+        // gRPC 호출 및 응답을 DTO로 변환
+        MemberProto.MemberCreateResponse grpcResponse = memberGrpcClientService.createMember(grpcRequest);
+
+        // gRPC 응답을 우리의 DTO로 변환
+        ResponseMemberDTO response = ResponseMemberDTO.builder()
+                .id(grpcResponse.getId())
+                .email(grpcResponse.getEmail())
+                .name(grpcResponse.getName())
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
 }
