@@ -65,7 +65,7 @@ public class GrpcMemberClient {
 
         // 토큰 로깅
         if (authentication != null && authentication.getCredentials() != null) {
-            log.info("Current Token: {}", authentication.getCredentials());
+//            log.info("Current Token: {}", authentication.getCredentials());
         }
 
         try {
