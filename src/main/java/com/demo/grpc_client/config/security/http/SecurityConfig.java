@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()  // 로그인/인증 관련 엔드포인트
                         .requestMatchers("/api/auth/login").permitAll() // 로그인 엔드포인트
                         .requestMatchers("/api/auth/register").permitAll() // 회원가입 엔드포인트 (필요한 경우)
+                        .requestMatchers("/api/members/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
