@@ -1,131 +1,260 @@
 # gRPC 성능 테스트 클라이언트
 
-이 프로젝트는 gRPC와 HTTP(Feign) 프로토콜의 성능을 비교 테스트하기 위한 클라이언트 애플리케이션입니다. 두 프로토콜의 실제 성능 차이를 측정하고 분석할 수 있도록 설계되었습니다.
+이 프로젝트는 **gRPC**와 **HTTP(Feign)** 프로토콜의 성능을 비교 테스트하기 위한 **클라이언트 애플리케이션**입니다.  
+두 프로토콜의 실제 성능 차이를 측정하고 분석할 수 있도록 설계되었습니다.
 
 ## 프로젝트 설정
 
-이 애플리케이션은 Java 21과 Spring Boot 3.3.7을 기반으로 합니다. 프로젝트를 실행하기 전에 다음 요구사항이 충족되어야 합니다:
+- **Java 21**
+- **Spring Boot 3.3.7**
+- **Gradle** 기반 빌드
 
-1. Java 21 이상이 설치되어 있어야 합니다.
-2. 테스트 대상이 되는 서버 애플리케이션이 실행 중이어야 합니다.
-- https://github.com/wlsdks/grpc-server-example (gRPC 서버 예시)
-    - HTTP 엔드포인트: localhost:8090
-    - gRPC 엔드포인트: localhost:50051
+### 사전 요구사항
 
-## 애플리케이션 실행 방법
+1. **Java 21** 이상이 설치되어 있어야 합니다.
+2. **테스트 대상**이 되는 **서버 애플리케이션**이 실행 중이어야 합니다.
 
-먼저 gradle을 사용하여 프로젝트를 빌드합니다.
+- gRPC 서버 예시 프로젝트: 깃허브
+  저장소 [https://github.com/wlsdks/grpc-server-example](https://github.com/wlsdks/grpc-server-example)
+    - **HTTP 엔드포인트**: <http://localhost:8090>
+    - **gRPC 엔드포인트**: <http://localhost:50051>
+
+위와 같은 서버가 로컬 환경에서 구동 중이거나, 네트워크로 연결 가능한 상태여야 합니다.
+
+## 아키텍처 개요
+
+```bash
+[1] User (hey 등 테스트툴)
+    |
+    | HTTP GET (예: /api/test/feign?memberId=1 또는 /api/test/grpc?memberId=1)
+    v
+[2] ClientApp (gRPC Client, 포트 8091)                                            
+    |  -- (내부 로직) -----------------------------|
+    
+    --> (Case A) Feign --------------------------+
+    |                                            |
+    |    [REST: HTTP/JSON, 포트 8090]             v
+    |    gRPCServer (원격 서버, HTTP) --------> 응답(JSON)
+    |                                            ^
+    +--------------------------------------------+
+
+    --> (Case B) gRPC ---------------------------+
+    |                                            |
+    |     [gRPC: Protobuf, 포트 50051]            v
+    |     gRPCServer (원격 서버, gRPC) -- ----> 응답(Protobuf)
+    |                                            ^
+    +--------------------------------------------+
+
+    |
+    | 최종 결과(HTTP Response)
+    v
+    
+[3] User (테스트툴) - 결과 수신
+```
+
+- 사용자/테스터가 이 프로젝트(클라이언트)의 HTTP 엔드포인트(8091) 로 요청을 보냄
+- 클라이언트 애플리케이션 내부에서 Feign(REST) 또는 gRPC 호출을 통해 원격 서버에 접근
+- 원격 gRPC 서버(또는 그 서버 안의 HTTP Controller)가 DB 조회 등 비즈니스 로직을 처리한 뒤 응답
+- 클라이언트 애플리케이션(8091) 이 응답을 받아 최종 HTTP 응답으로 반환
+
+## 프로젝트 빌드
 
 ```bash
 ./gradlew clean build
 ```
 
-### 빌드 결과물
+빌드가 완료되면 `build/libs` 디렉터리에 다음과 같은 JAR 파일이 생성됩니다.
 
-Gradle 빌드가 완료되면 `build/libs` 디렉토리에 다음과 같은 JAR 파일이 생성됩니다.
+1. **grpc-client-0.0.1.jar**
+    - 실행 가능한 JAR 파일 (Spring Boot 애플리케이션)
+    - 내부적으로 애플리케이션 실행에 필요한 모든 의존성을 포함
+    - 실제 구동 시 사용
 
-1. **grpc-client-0.0.1.jar**:
-    - 실행 가능한 JAR 파일 (Spring Boot 애플리케이션).
-    - 내부적으로 애플리케이션 실행에 필요한 모든 의존성을 포함합니다.
-    - 애플리케이션 실행에 사용됩니다.
+2. **grpc-client-0.0.1-plain.jar**
+    - 일반 JAR 파일
+    - 실행 불가, 다른 프로젝트에서 라이브러리로 사용할 수 있음
 
-2. **grpc-client-0.0.1-plain.jar**:
-    - 일반 JAR 파일.
-    - 라이브러리로 다른 프로젝트에서 의존성으로 사용될 수 있습니다.
-    - 실행이 불가능하며, 소스 코드와 리소스만 포함합니다.
-
-
-
-### 빌드가 완료되면 애플리케이션을 실행합니다.
-- 실행 가능한 JAR 파일(`grpc-client-0.0.1.jar`)을 사용하여 애플리케이션을 실행합니다.
+## 애플리케이션 실행
 
 ```bash
 java -jar build/libs/grpc-client-0.0.1.jar
 ```
 
-애플리케이션은 기본적으로 8091 포트에서 실행됩니다.
+- 기본적으로 **localhost:8091** 포트에서 애플리케이션이 실행됩니다.
+- 실행 후, `http://localhost:8091` 로 접속이 가능해야 합니다.
 
-## 성능 테스트 실행 방법
+## JWT 인증 처리 (예시)
 
-성능 테스트는 HTTP API를 통해 실행할 수 있습니다. 다음 엔드포인트를 사용하여 테스트를 시작할 수 있습니다:
+만약 **JWT 토큰**을 사용하는 환경이라면, 보통 다음 흐름을 따릅니다:
 
-- 일반 gRPC 성능 테스트
+1. **로그인**(예: `/api/auth/login`) 엔드포인트로 ID/PW 전송
+2. **서버**에서 **JWT 토큰** 발급하여 응답
+3. **클라이언트** 측에서 **Authorization 헤더**에 `Bearer <JWT 토큰>` 을 담아 재요청
+4. 토큰은 위에 적어둔 gRPC 서버 github 저장소의 프로젝트를 실행해서 "회원 가입 -> 로그인" API를 호출하여 발급받을 수 있습니다.
+
+`Authorization: Bearer <발급받은 토큰>` 형태로 설정해야 클라이언트가 올바르게 인증 정보를 전송할 수 있습니다.
+
+아래 실제 부하 테스트에서 **헤더**를 추가하는 예를 확인하실 수 있습니다.
+
+---
+
+## 주요 엔드포인트
+
+이 애플리케이션에는 **HTTP 요청**을 받았을 때, 내부적으로 **Feign**(HTTP) 혹은 **gRPC** 호출을 수행하고 결과를 반환하는 컨트롤러가 있습니다.
+
+- **Feign 테스트**
+    - 내부적으로 **Feign Client**를 이용해 **원격 서버(8090)** 의 `GET /api/members/{id}` 호출
+
+```
+GET /api/test/feign?memberId={id}
+```
+
+- **gRPC 테스트**
+    - 내부적으로 **gRPC Client**를 이용해 **원격 gRPC 서버(50051)** 의 `GetMemberById` 호출
+
+```
+GET /api/test/grpc?memberId={id}
+```
+
+- 호출예시
+
+```
+GET http://localhost:8091/api/test/feign?memberId=1
+GET http://localhost:8091/api/test/grpc?memberId=1
+```
+
+요청에는 **JWT**가 필요하니 위 엔드포인트 호출 시에 **Authorization** 헤더를 포함해야 합니다.
+
+- 예: `curl` 을 사용하는 경우
+
 ```bash
-curl -X POST "http://localhost:8091/test/performance?totalRequests=1000&concurrentRequests=100"
+curl -v \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  "http://localhost:8091/api/test/feign?memberId=1"
+
+curl -v \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  "http://localhost:8091/api/test/grpc?memberId=1"
 ```
-- 압축 gRPC 성능 테스트
+
+---
+
+## 성능 테스트 시나리오
+
+이제 실제로 **부하 테스트**를 진행해보는 방법을 안내합니다.  
+예시로, [hey](<https://github.com/rakyll/hey>) 툴을 사용합니다.  
+(물론 JMeter, wrk, ab 등 다른 툴을 사용해도 됩니다.)
+
+### 1. Feign (HTTP) 호출 성능 측정
+
 ```bash
-curl -X POST "http://localhost:8091/test/advanced-performance?totalRequests=1000&concurrentRequests=100"
+hey -n 1000 -c 50 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  "http://localhost:8091/api/test/feign?memberId=1"
 ```
-- 스트리밍 gRPC 성능 테스트
+
+- **-n 1000**: 총 1000번 요청
+- **-c 50**: 동시에 50개의 연결(Concurrent)
+- **-H**: **Authorization** 헤더 추가하여 JWT 토큰 포함
+- 내부적으로는 **클라이언트 애플리케이션(8091)** 이 **Feign**을 통해 **원격 서버(8090)** 로 REST 요청을 보냄
+- 최종 결과를 hey가 콘솔에 출력해주며, **TPS**, **응답 시간(최대/최소/평균)**, **에러율** 등을 확인 가능
+
+예시 결과 (콘솔 출력):
+
+```
+Summary:
+  Total:	10.1237 secs
+  Slowest:	0.2000 secs
+  Fastest:	0.0010 secs
+  Average:	0.0251 secs
+  Requests/sec:	98.78
+  ...
+```
+
+### 2. gRPC 호출 성능 측정
+
 ```bash
-curl -X POST "http://localhost:8091/test/streaming"
+hey -n 1000 -c 50 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  "http://localhost:8091/api/test/grpc?memberId=1"
 ```
 
-매개변수 설명:
-- totalRequests: 전체 요청 수 (기본값: 1000)
-- concurrentRequests: 동시 요청 수 (기본값: 100)
+- 마찬가지로 1000번 요청, 동시 50개
+- **-H**로 **JWT 토큰**을 포함
+- 이번에는 **클라이언트 애플리케이션(8091)** 이 **gRPC Client**를 통해 **원격 gRPC 서버(50051)** 에 직접 gRPC를 호출
+- 결과적으로 **HTTP → gRPC** 구조를 거쳐 최종 응답을 받음
 
-## 테스트 결과 해석
+결과 예시:
 
-테스트가 완료되면 애플리케이션 로그에서 다음과 같은 정보를 확인할 수 있습니다:
-
-- 각 프로토콜(HTTP, gRPC)의 총 실행 시간
-- 요청당 평균 처리 시간
-- 최소/최대 응답 시간
-- 초당 처리량(throughput)
-
-일반 gRPC 테스트 예시 로그 출력:
 ```
-=== HTTP 테스트 결과 ===
-총 실행 시간: 633ms
-총 요청 수: 10000
-성공한 요청 수: 9998
-실패한 요청 수: 2
-최소 응답 시간: 1ms
-최대 응답 시간: 103ms
-95번째 백분위 응답 시간: 13ms
-99번째 백분위 응답 시간: 73ms
-
-=== gRPC 테스트 결과 ===
-총 실행 시간: 528ms
-총 요청 수: 10000
-성공한 요청 수: 10000
-실패한 요청 수: 0
-최소 응답 시간: 1ms
-최대 응답 시간: 157ms
-95번째 백분위 응답 시간: 7ms
-99번째 백분위 응답 시간: 133ms
+Summary:
+  Total:	7.4219 secs
+  Slowest:	0.1859 secs
+  Fastest:	0.0009 secs
+  Average:	0.0182 secs
+  Requests/sec:	134.72
+  ...
 ```
 
-## 스트리밍 테스트 상세 설명
+> 실제 값은 서버 성능, 네트워크 상태, DB 부하 등에 따라 달라집니다.
 
-스트리밍 gRPC 테스트는 다수의 요청을 스트림 형태로 서버에 보내고, 각 요청에 대한 응답을 스트림 형태로 받습니다. 이 테스트는 다음을 확인합니다:
+---
 
-1. 스트리밍 요청-응답의 동작 확인
-2. 스트리밍 처리량 검증
-3. 비동기 통신 안정성 평가
+## 추가 참고 사항
 
-현재 기본적으로 10개의 요청을 전송하며, 필요 시 요청 수를 확장하여 대규모 스트리밍 테스트를 수행할 수 있습니다.
+1. **헤더 설정**
+    - JWT 말고도, `Content-Type`, `Accept` 등 필요에 따라 추가 설정이 있을 수 있습니다.
+    - `hey`에서 헤더 추가 시에는 `-H "키: 값"` 형식으로 여러 번 지정 가능합니다.
 
-## 주의사항
-1. 첫 번째 테스트 실행은 JVM 웜업 효과로 인해 실제보다 높은 지연 시간을 보일 수 있습니다. 정확한 측정을 위해 여러 번의 테스트를 수행하는 것이 좋습니다.
-2. 테스트를 실행하기 전에 반드시 서버 애플리케이션이 실행 중이어야 합니다.
-3. 운영 환경과 유사한 조건에서 테스트하기 위해 다음 사항을 고려하세요:
-    - 서버와 클라이언트를 다른 머신에서 실행
-    - 다양한 크기의 페이로드로 테스트
-    - 네트워크 지연이 있는 환경에서의 테스트
+2. **동시성 & 확장성**
+    - `hey` 툴로도 몇 천~몇 만 건 정도 테스트 가능하지만,  
+      더 큰 규모나 복잡한 시뮬레이션이
+      필요하면 [JMeter](https://jmeter.apache.org/), [Gatling](https://gatling.io/), [Locust](https://locust.io/) 등을 고려할 수
+      있습니다.
 
-## 추가 설정
+3. **직접 gRPC 부하 테스트 (ghz)**
+    - 순수 gRPC 서버(50051)에 대해 **직접** 부하를 주고 싶다면, [ghz](https://ghz.sh/) 사용을 고려하세요.
+    - 예:
+      ```bash
+      ghz --insecure \
+          --proto ./path/to/member.proto \
+          --call com.test.member.grpc.MemberService.GetMemberById \
+          -d '{"id":1}' \
+          -n 1000 -c 50 \
+          127.0.0.1:50051
+      ```
+    - 이 경우, **HTTP 레이어**(8091)는 거치지 않으므로 “**HTTP → gRPC**”가 아닌 **순수 gRPC** 성능만 확인 가능합니다.
 
-필요한 경우 `application.yml` 파일에서 다음 설정을 수정할 수 있습니다:
+4. **프로덕션 고려**
+    - 실제 운영 환경에서는 스레드 풀, Netty 설정, TLS(SSL), DB connection pool, 인증/인가 등의 변수가 많아집니다.
+    - 따라서 실무 부하 테스트는 이러한 요소들도 함께 고려하시길 권장합니다.
 
-- 서버 포트
-- gRPC 서버 주소
-- HTTP 서버 주소
-- Feign 클라이언트 타임아웃 설정
+---
 
-## 프로젝트 목적
+## FAQ
 
-이 테스트 클라이언트를 통해 실제 마이크로서비스 환경에서 gRPC와 HTTP의 성능 차이를 정확하게 측정하고 비교할 수 있습니다. 
-다양한 요청 패턴과 처리 방식에 대해 평가하여 적합한 프로토콜을 선택하는 데 도움이 됩니다.
+1. **Q**: “테스트 중 `401 Unauthorized` 에러가 발생합니다. 어떻게 해결하나요?”  
+   **A**: 발급받은 **JWT 토큰**이 만료되었거나, 잘못된 토큰을 사용했을 가능성이 있습니다.
+    - 먼저 서버 측 `/api/auth/login`(또는 `/api/auth/refresh`) 등을 통해 새로운 토큰을 발급받으세요.
+    - 요청 시 `-H "Authorization: Bearer <유효한 토큰>"` 형태로 보내는지 확인하세요.
+
+<br/>
+
+2. **Q**: “Feign vs. gRPC 중 어느 쪽이 더 빠른가요?”  
+   **A**: 일반적으로 **gRPC(HTTP/2 + Protobuf 직렬화)**가 **REST(HTTP/1.1 + JSON)** 대비 오버헤드가 적은 편입니다.  
+   그러나 실제로는 네트워크 환경, 서버 스펙, DB 부하, TLS 설정 등 다양한 요소가 영향을 미치므로,  
+   **직접 부하 테스트**를 통해 **각 환경별, 시나리오별 실측 데이터를 확보**하시길 권장합니다.
+
+<br/>
+
+3. **Q**: “gRPC 서버 주소(포트)를 바꾸려면 어떻게 해야 하나요?”  
+   **A**: 보통 `application.yml`의 `grpc.client.member-service.address` 부분(혹은 `bootstrap.yml`)에서  
+   `localhost:50051` 등을 수정하면 됩니다.
+    - 소스 코드상 `@GrpcClient("member-service")` 에 매핑된 설정을 확인하세요.
+
+<br/>
+
+4. **Q**: “회원 데이터를 사전에 생성해두려면 어떻게 하나요?”  
+   **A**: 원격 서버(8090)에 `POST /api/members` 호출로 테스트용 회원(예: ID=1)만 미리 만들어 두십시오.
+    - 이후 `GET /api/test/feign?memberId=1` or `GET /api/test/grpc?memberId=1` 로 조회 요청 시,  
+      해당 회원 데이터가 정상 조회되어야 합니다.
