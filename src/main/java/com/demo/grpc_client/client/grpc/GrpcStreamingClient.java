@@ -1,4 +1,4 @@
-package com.demo.grpc_client.client;
+package com.demo.grpc_client.client.grpc;
 
 import com.test.member.grpc.MemberProto;
 import com.test.member.grpc.MemberServiceGrpc;

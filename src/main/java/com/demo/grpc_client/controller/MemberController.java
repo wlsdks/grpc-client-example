@@ -1,6 +1,6 @@
 package com.demo.grpc_client.controller;
 
-import com.demo.grpc_client.client.GrpcMemberClient;
+import com.demo.grpc_client.client.grpc.GrpcMemberClient;
 import com.demo.grpc_client.dto.ResponseMemberDTO;
 import com.test.member.grpc.MemberProto;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.demo.grpc_client.client;
+package com.demo.grpc_client.client.feign;
 
 import com.demo.grpc_client.dto.MemberSignUpRequestDTO;
 import com.demo.grpc_client.dto.ResponseMemberDTO;
