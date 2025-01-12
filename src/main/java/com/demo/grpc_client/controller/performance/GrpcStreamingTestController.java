@@ -1,4 +1,4 @@
-package com.demo.grpc_client.controller.test;
+package com.demo.grpc_client.controller.performance;
 
 import com.demo.grpc_client.service.GrpcStreamingService;
 import lombok.RequiredArgsConstructor;
