@@ -12,25 +12,31 @@ import java.util.Arrays;
 @Service
 public class ServerAuthenticationService {
 
+    private final ServerProperties serverProperties;
     private final ServerTokenUtil serverTokenUtil;
 
+    // 현재 서버의 타입을 확인하는 메소드
+    private boolean isCurrentServer(ServerType type) {
+        return serverProperties.getType() == type;
+    }
+
+    // 서버 타입에 따른 검증 로직
     public void validateServerRequest() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // instanceof 패턴 매칭을 사용하여 더 안전하게 체크
         if (!(authentication instanceof ServerAuthenticationToken serverToken)) {
             throw new ServerAuthenticationException("Server authentication required");
         }
 
         ServerTokenClaims claims = (ServerTokenClaims) serverToken.getPrincipal();
 
-        // 서버 타입 검증
-        if (!isValidServerType(claims.serverType())) {
-            throw new ServerAuthenticationException("Invalid server type: " + claims.serverType());
+        // 현재 서버 타입에 따른 검증
+        if (isCurrentServer(ServerType.CLIENT_SERVER)) {
+            // 클라이언트 서버일 때의 검증 로직
+            validateClientServerRequest(claims);
+        } else if (isCurrentServer(ServerType.AUTH_SERVER)) {
+            // 인증 서버일 때의 검증 로직
+            validateAuthServerRequest(claims);
         }
-
-        // 추가적인 검증 로직
-        validateServerClaims(claims);
     }
 
     public Authentication authenticateServer(ServerTokenClaims claims) {
@@ -40,6 +46,20 @@ public class ServerAuthenticationService {
 
         validateServerClaims(claims);
         return new ServerAuthenticationToken(claims);
+    }
+
+    private void validateClientServerRequest(ServerTokenClaims claims) {
+        // 클라이언트 서버에서의 특정 검증 로직
+        if (claims.serverType() != ServerType.AUTH_SERVER) {
+            throw new ServerAuthenticationException("Client server can only accept requests from Auth server");
+        }
+    }
+
+    private void validateAuthServerRequest(ServerTokenClaims claims) {
+        // 인증 서버에서의 특정 검증 로직
+        if (claims.serverType() != ServerType.CLIENT_SERVER) {
+            throw new ServerAuthenticationException("Auth server can only accept requests from Client server");
+        }
     }
 
     private boolean isValidServerType(ServerType serverType) {
