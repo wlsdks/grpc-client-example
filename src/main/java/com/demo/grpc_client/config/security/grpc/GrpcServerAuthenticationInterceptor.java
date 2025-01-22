@@ -16,6 +16,9 @@ public class GrpcServerAuthenticationInterceptor implements ClientInterceptor {
     private static final Metadata.Key<String> SERVER_AUTH_KEY =
             Metadata.Key.of("Server-Authorization", Metadata.ASCII_STRING_MARSHALLER);
 
+    /**
+     * @apiNote 서버 토큰을 생성하여 요청 헤더에 추가하는 인터셉터
+     */
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method,
                                                                CallOptions callOptions,

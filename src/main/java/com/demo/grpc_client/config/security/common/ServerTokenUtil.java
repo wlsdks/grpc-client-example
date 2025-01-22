@@ -1,6 +1,5 @@
 package com.demo.grpc_client.config.security.common;
 
-import com.demo.grpc_client.config.security.server.ServerTokenClaims;
 import com.demo.grpc_client.config.security.server.ServerType;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -36,30 +35,6 @@ public class ServerTokenUtil {
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(secretKey, Jwts.SIG.HS256)
                 .compact();
-    }
-
-    /**
-     * @param token 서버 토큰
-     * @return 서버 토큰의 클레임
-     * @apiNote 서버 토큰을 검증하고 클레임을 추출합니다.
-     */
-    public ServerTokenClaims validateAndGetClaims(String token) {
-        try {
-            // 서버 토큰의 클레임을 추출
-            var claims = Jwts.parser()
-                    .verifyWith(secretKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-
-            // 서버 토큰의 서버 타입과 서버 ID를 추출
-            return new ServerTokenClaims(
-                    ServerType.valueOf(claims.get("serverType", String.class)),
-                    claims.getSubject()
-            );
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid token: " + token);
-        }
     }
 
 }

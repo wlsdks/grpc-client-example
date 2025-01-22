@@ -1,9 +1,7 @@
 package com.demo.grpc_client.config.security;
 
 import com.demo.grpc_client.config.security.filter.JwtAuthenticationFilter;
-import com.demo.grpc_client.config.security.server.ServerTokenClaims;
 import com.demo.grpc_client.config.security.service.JwtAuthenticationService;
-import com.demo.grpc_client.config.security.service.ServerAuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,16 +21,10 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationService jwtAuthenticationService;
-    private final ServerAuthenticationService serverAuthenticationService;
 
     @Bean
     public AuthenticationManager authenticationManager() {
         return authentication -> {
-            // 서버 인증 토큰인 경우
-            if (authentication.getPrincipal() instanceof ServerTokenClaims) {
-                return serverAuthenticationService.authenticateServer((ServerTokenClaims) authentication.getPrincipal());
-            }
-
             // 사용자 JWT 토큰인 경우
             if (authentication.getPrincipal() instanceof String token) {
                 return jwtAuthenticationService.authenticateToken(token);
