@@ -1,5 +1,7 @@
 server:
   port: 8091 # 클라이언트 포트
+  type: CLIENT_SERVER  # 또는 RESOURCE_SERVER
+  id: client-server-1  # 또는 resource-server-1
 
 spring:
   application:
