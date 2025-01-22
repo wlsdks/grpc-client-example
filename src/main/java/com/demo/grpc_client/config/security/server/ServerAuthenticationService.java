@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class ServerAuthService {
+public class ServerAuthenticationService {
 
     private final ServerTokenUtil serverTokenUtil;
 
