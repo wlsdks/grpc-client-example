@@ -1,9 +1,12 @@
-package com.demo.grpc_client.config.security.server;
+package com.demo.grpc_client.config.security.service;
 
+import com.demo.grpc_client.config.security.server.ServerProperties;
+import com.demo.grpc_client.config.security.server.ServerTokenClaims;
+import com.demo.grpc_client.config.security.server.ServerType;
+import com.demo.grpc_client.config.security.token.ServerAuthenticationToken;
 import com.demo.grpc_client.exception.ServerAuthenticationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -13,39 +16,30 @@ import java.util.Arrays;
 public class ServerAuthenticationService {
 
     private final ServerProperties serverProperties;
-    private final ServerTokenUtil serverTokenUtil;
-
-    // 현재 서버의 타입을 확인하는 메소드
-    private boolean isCurrentServer(ServerType type) {
-        return serverProperties.getType() == type;
-    }
-
-    // 서버 타입에 따른 검증 로직
-    public void validateServerRequest() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof ServerAuthenticationToken serverToken)) {
-            throw new ServerAuthenticationException("Server authentication required");
-        }
-
-        ServerTokenClaims claims = (ServerTokenClaims) serverToken.getPrincipal();
-
-        // 현재 서버 타입에 따른 검증
-        if (isCurrentServer(ServerType.CLIENT_SERVER)) {
-            // 클라이언트 서버일 때의 검증 로직
-            validateClientServerRequest(claims);
-        } else if (isCurrentServer(ServerType.AUTH_SERVER)) {
-            // 인증 서버일 때의 검증 로직
-            validateAuthServerRequest(claims);
-        }
-    }
 
     public Authentication authenticateServer(ServerTokenClaims claims) {
+        // 1. 서버 타입 유효성 검증
         if (!isValidServerType(claims.serverType())) {
             throw new ServerAuthenticationException("Invalid server type: " + claims.serverType());
         }
 
+        // 2. 기본적인 claims 검증
         validateServerClaims(claims);
+
+        // 3. 서버 타입별 특수 검증
+        if (isCurrentServer(ServerType.CLIENT_SERVER)) {
+            validateClientServerRequest(claims);
+        } else if (isCurrentServer(ServerType.AUTH_SERVER)) {
+            validateAuthServerRequest(claims);
+        }
+
+        // 4. 인증 객체 생성 및 반환
         return new ServerAuthenticationToken(claims);
+    }
+
+    // 현재 서버의 타입을 확인하는 메소드
+    private boolean isCurrentServer(ServerType type) {
+        return serverProperties.getType() == type;
     }
 
     private void validateClientServerRequest(ServerTokenClaims claims) {

@@ -1,9 +1,9 @@
-package com.demo.grpc_client.config.security.http;
+package com.demo.grpc_client.config.security;
 
-import com.demo.grpc_client.config.security.common.JwtAuthenticationService;
-import com.demo.grpc_client.config.security.server.ServerAuthenticationFilter;
-import com.demo.grpc_client.config.security.server.ServerAuthenticationService;
+import com.demo.grpc_client.config.security.filter.JwtAuthenticationFilter;
 import com.demo.grpc_client.config.security.server.ServerTokenClaims;
+import com.demo.grpc_client.config.security.service.JwtAuthenticationService;
+import com.demo.grpc_client.config.security.service.ServerAuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,6 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationService jwtAuthenticationService;
-    private final ServerAuthenticationFilter serverAuthenticationFilter;
     private final ServerAuthenticationService serverAuthenticationService;
 
     @Bean
@@ -49,17 +48,12 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 서버 간 통신을 위한 엔드포인트
-                        .requestMatchers("/api/server/**").hasRole("SERVER")
-                        // 기존 사용자 인증 관련 엔드포인트
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/api/members/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                // 서버 인증 필터를 JWT 인증 필터보다 먼저 적용
-                .addFilterBefore(serverAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((request, response, authException) -> {

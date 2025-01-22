@@ -1,5 +1,6 @@
-package com.demo.grpc_client.config.security.common;
+package com.demo.grpc_client.config.security.service;
 
+import com.demo.grpc_client.config.security.common.JwtUtil;
 import com.demo.grpc_client.exception.JwtAuthenticationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

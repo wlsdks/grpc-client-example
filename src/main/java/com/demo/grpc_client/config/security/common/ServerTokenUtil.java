@@ -1,5 +1,7 @@
-package com.demo.grpc_client.config.security.server;
+package com.demo.grpc_client.config.security.common;
 
+import com.demo.grpc_client.config.security.server.ServerTokenClaims;
+import com.demo.grpc_client.config.security.server.ServerType;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;

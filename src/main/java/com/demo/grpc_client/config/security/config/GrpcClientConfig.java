@@ -1,7 +1,9 @@
-package com.demo.grpc_client.config.security.grpc;
+package com.demo.grpc_client.config.security.config;
 
+import com.demo.grpc_client.config.security.grpc.GrpcClientInterceptor;
+import com.demo.grpc_client.config.security.grpc.GrpcServerAuthenticationInterceptor;
 import com.demo.grpc_client.config.security.server.ServerProperties;
-import com.demo.grpc_client.config.security.server.ServerTokenUtil;
+import com.demo.grpc_client.config.security.common.ServerTokenUtil;
 import io.grpc.ClientInterceptor;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.interceptor.GrpcGlobalClientInterceptor;

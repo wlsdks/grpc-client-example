@@ -1,5 +1,6 @@
-package com.demo.grpc_client.config.security.server;
+package com.demo.grpc_client.config.security.token;
 
+import com.demo.grpc_client.config.security.server.ServerTokenClaims;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 

@@ -1,6 +1,6 @@
-package com.demo.grpc_client.config.security.http;
+package com.demo.grpc_client.config.security.filter;
 
-import com.demo.grpc_client.config.security.common.JwtAuthenticationService;
+import com.demo.grpc_client.config.security.service.JwtAuthenticationService;
 import com.demo.grpc_client.config.security.common.TokenExtractor;
 import com.demo.grpc_client.exception.JwtAuthenticationException;
 import jakarta.servlet.FilterChain;

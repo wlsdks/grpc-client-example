@@ -1,7 +1,7 @@
 package com.demo.grpc_client.config.security.grpc;
 
 import com.demo.grpc_client.config.security.server.ServerProperties;
-import com.demo.grpc_client.config.security.server.ServerTokenUtil;
+import com.demo.grpc_client.config.security.common.ServerTokenUtil;
 import io.grpc.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

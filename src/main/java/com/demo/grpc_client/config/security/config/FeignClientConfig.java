@@ -1,7 +1,7 @@
-package com.demo.grpc_client.config.feign;
+package com.demo.grpc_client.config.security.config;
 
 import com.demo.grpc_client.config.security.server.ServerProperties;
-import com.demo.grpc_client.config.security.server.ServerTokenUtil;
+import com.demo.grpc_client.config.security.common.ServerTokenUtil;
 import feign.RequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
