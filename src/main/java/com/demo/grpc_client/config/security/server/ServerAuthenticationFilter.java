@@ -41,7 +41,7 @@ public class ServerAuthenticationFilter extends OncePerRequestFilter {
             ServerTokenClaims claims = serverTokenUtil.validateAndGetClaims(token);
 
             SecurityContextHolder.getContext().setAuthentication(
-                    new ServerAuthenticationToken(token, claims)
+                    new ServerAuthenticationToken(claims)
             );
 
             filterChain.doFilter(request, response);
