@@ -1,4 +1,3 @@
 ### 회원 조회 요청 (ID: 1)
 GET http://localhost:8091/api/members/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiaWF0IjoxNzM2NTMxNzkxLCJleHAiOjE3MzY1MzUzOTF9.V3Ftncjel-4vBwrQ2IlPunWzfMea5Xs9TR-GHUClClg
