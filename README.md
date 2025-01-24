@@ -149,7 +149,7 @@ curl -v \
 
 ```bash
 hey -n 1000 -c 50 \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaW5hbkB0ZXN0LmNvbSIsImlhdCI6MTczNzcyNjY1MiwiZXhwIjoxNzM3NzMwMjUyfQ.XytkkongdksyVUk6kHXGVMzZCwyCdOETv8pLbR23l3A" \
   "http://localhost:8091/api/test/feign?memberId=1"
 ```
 
@@ -163,19 +163,37 @@ hey -n 1000 -c 50 \
 
 ```
 Summary:
-  Total:	10.1237 secs
-  Slowest:	0.2000 secs
-  Fastest:	0.0010 secs
-  Average:	0.0251 secs
-  Requests/sec:	98.78
-  ...
+  Total:	0.3676 secs
+  Slowest:	0.0723 secs
+  Fastest:	0.0013 secs
+  Average:	0.0172 secs
+  Requests/sec:	2720.5409
+  
+
+Response time histogram:
+  0.001 [1]	|
+  0.008 [268]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.015 [247]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.023 [194]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.030 [152]	|■■■■■■■■■■■■■■■■■■■■■■■
+  0.037 [77]	|■■■■■■■■■■■
+  0.044 [29]	|■■■■
+  0.051 [22]	|■■■
+  0.058 [4]	|■
+  0.065 [4]	|■
+  0.072 [2]	|
+
+...
+
+Status code distribution:
+  [200]	1000 responses
 ```
 
 ### 2. gRPC 호출 성능 측정
 
 ```bash
 hey -n 1000 -c 50 \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp..." \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqaW5hbkB0ZXN0LmNvbSIsImlhdCI6MTczNzcyNjY1MiwiZXhwIjoxNzM3NzMwMjUyfQ.XytkkongdksyVUk6kHXGVMzZCwyCdOETv8pLbR23l3A" \
   "http://localhost:8091/api/test/grpc?memberId=1"
 ```
 
@@ -188,12 +206,30 @@ hey -n 1000 -c 50 \
 
 ```
 Summary:
-  Total:	7.4219 secs
-  Slowest:	0.1859 secs
+  Total:	0.2320 secs
+  Slowest:	0.0502 secs
   Fastest:	0.0009 secs
-  Average:	0.0182 secs
-  Requests/sec:	134.72
-  ...
+  Average:	0.0114 secs
+  Requests/sec:	4310.6320
+  
+
+Response time histogram:
+  0.001 [1]	|
+  0.006 [300]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.011 [350]	|■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.016 [113]	|■■■■■■■■■■■■■
+  0.021 [94]	|■■■■■■■■■■■
+  0.026 [71]	|■■■■■■■■
+  0.030 [27]	|■■■
+  0.035 [2]	|
+  0.040 [0]	|
+  0.045 [12]	|■
+  0.050 [30]	|■■■
+
+...
+
+Status code distribution:
+  [200]	1000 responses
 ```
 
 > 실제 값은 서버 성능, 네트워크 상태, DB 부하 등에 따라 달라집니다.
