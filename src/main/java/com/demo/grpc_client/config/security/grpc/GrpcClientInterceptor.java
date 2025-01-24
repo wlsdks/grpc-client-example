@@ -34,7 +34,7 @@ public class GrpcClientInterceptor implements ClientInterceptor {
 
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
-                log.info("gRPC 요청 헤더 생성전: {}", headers);
+                log.trace("gRPC 요청 헤더 생성전: {}", headers);
 
                 // SecurityContext에서 인증 정보를 가져옵니다
                 Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -43,11 +43,11 @@ public class GrpcClientInterceptor implements ClientInterceptor {
                     String token = authentication.getCredentials().toString();
                     headers.put(AUTHORIZATION_HEADER, "Bearer " + token);
 
-                    log.info("Authentication: {}", authentication);
-                    log.info("Added Authorization Header: {}", headers.get(AUTHORIZATION_HEADER));
+                    log.trace("Authentication: {}", authentication);
+                    log.trace("Added Authorization Header: {}", headers.get(AUTHORIZATION_HEADER));
                 }
 
-                log.info("gRPC 요청 헤더 생성후: {}", headers);
+                log.trace("gRPC 요청 헤더 생성후: {}", headers);
                 super.start(responseListener, headers);
             }
         };

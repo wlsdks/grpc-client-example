@@ -27,7 +27,7 @@ public class GrpcMemberClient {
      * @return 조회된 회원 정보 DTO
      */
     public MemberProto.MemberResponse getMemberById(Long memberId) {
-        log.info("getMemberById 메서드 진입 - 요청 ID: {}", memberId);
+        log.trace("getMemberById 메서드 진입 - 요청 ID: {}", memberId);
 
         // 1. 블로킹 Stub 생성 (동기 호출)
         MemberServiceGrpc.MemberServiceBlockingStub stub =
@@ -40,7 +40,7 @@ public class GrpcMemberClient {
 
         // 현재 인증 정보 로깅
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("Current Authentication: {}", authentication);
+        log.trace("Current Authentication: {}", authentication);
 
         // 토큰 로깅
         if (authentication != null && authentication.getCredentials() != null) {

@@ -33,7 +33,7 @@ public class PerformanceTestController {
      */
     @GetMapping("/feign")
     public ResponseEntity<ResponseMemberDTO> feignTest(@RequestParam Long memberId) {
-        log.info("[FEIGN TEST] 들어온 HTTP 요청 - memberId={}", memberId);
+        log.trace("[FEIGN TEST] 들어온 HTTP 요청 - memberId={}", memberId);
 
         // 1) FeignClient로 원격 서버의 /api/members/{memberId} 호출
         ResponseEntity<ResponseMemberDTO> response;
@@ -46,7 +46,7 @@ public class PerformanceTestController {
 
         // 2) 응답 확인 로깅
         if (response.getBody() != null) {
-            log.info("[FEIGN TEST] 응답 - ID={}, email={}",
+            log.trace("[FEIGN TEST] 응답 - ID={}, email={}",
                     response.getBody().getId(),
                     response.getBody().getEmail());
         } else {
@@ -65,7 +65,7 @@ public class PerformanceTestController {
      */
     @GetMapping("/grpc")
     public ResponseEntity<ResponseMemberDTO> grpcTest(@RequestParam Long memberId) {
-        log.info("[gRPC TEST] 들어온 HTTP 요청 - memberId={}", memberId);
+        log.trace("[gRPC TEST] 들어온 HTTP 요청 - memberId={}", memberId);
 
         // 1) gRPC 클라이언트 호출
         MemberProto.MemberResponse grpcResponse;
@@ -83,7 +83,7 @@ public class PerformanceTestController {
                 .name(grpcResponse.getName())
                 .build();
 
-        log.info("[gRPC TEST] 응답 - ID={}, email={}", result.getId(), result.getEmail());
+        log.trace("[gRPC TEST] 응답 - ID={}, email={}", result.getId(), result.getEmail());
 
         // 3) 최종 HTTP 응답
         return ResponseEntity.ok(result);
