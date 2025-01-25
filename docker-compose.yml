@@ -1,0 +1,18 @@
+version: '3.8'
+services:
+  master:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --master -H http://host.docker.internal:8091
+
+  worker:
+    image: locustio/locust
+    volumes:
+      - ./:/mnt/locust
+    command: -f /mnt/locust/locustfile.py --worker --master-host master
+
+# docker-compose up -d --scale worker=3 명령어로 worker를 3개로 늘릴 수 있음
+# http://localhost:8089 접속 후 테스트를 실행할 수 있음
