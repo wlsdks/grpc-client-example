@@ -2,7 +2,8 @@ package com.demo.grpc_client.controller.performance;
 
 import com.demo.grpc_client.client.feign.MemberFeignClient;
 import com.demo.grpc_client.client.grpc.GrpcMemberClient;
-import com.demo.grpc_client.dto.ResponseMemberDTO;
+import com.demo.grpc_client.dto.response.ResponseMemberDTO;
+import com.demo.grpc_client.mapper.GrpcMemberMapper;
 import com.test.member.grpc.MemberProto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class PerformanceTestController {
 
     private final MemberFeignClient memberFeignClient;
     private final GrpcMemberClient grpcMemberClient;
+    private final GrpcMemberMapper grpcMemberMapper;
 
     /**
      * [FEIGN] HTTP 요청 -> Feign(REST) -> gRPC 서버(내부에서 HTTP API가 있다 가정) -> 응답
@@ -68,25 +70,16 @@ public class PerformanceTestController {
         log.trace("[gRPC TEST] 들어온 HTTP 요청 - memberId={}", memberId);
 
         // 1) gRPC 클라이언트 호출
-        MemberProto.MemberResponse grpcResponse;
         try {
-            grpcResponse = grpcMemberClient.getMemberById(memberId);
+            MemberProto.MemberResponse response = grpcMemberClient.getMemberById(memberId);
+            ResponseMemberDTO responseMemberDTO = grpcMemberMapper.protoToDto(response);
+            log.trace("[gRPC TEST] 응답 - ID={}, email={}", responseMemberDTO.getId(), responseMemberDTO.getEmail());
+
+            return ResponseEntity.ok(responseMemberDTO);
         } catch (Exception e) {
             log.error("[gRPC TEST] 요청 중 예외 발생 - {}", e.getMessage());
             return ResponseEntity.internalServerError().build();
         }
-
-        // 2) gRPC 응답을 DTO로 변환
-        ResponseMemberDTO result = ResponseMemberDTO.builder()
-                .id(grpcResponse.getId())
-                .email(grpcResponse.getEmail())
-                .name(grpcResponse.getName())
-                .build();
-
-        log.trace("[gRPC TEST] 응답 - ID={}, email={}", result.getId(), result.getEmail());
-
-        // 3) 최종 HTTP 응답
-        return ResponseEntity.ok(result);
     }
 
 }

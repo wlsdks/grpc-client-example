@@ -1,7 +1,7 @@
 package com.demo.grpc_client.client.feign;
 
-import com.demo.grpc_client.dto.MemberSignUpRequestDTO;
-import com.demo.grpc_client.dto.ResponseMemberDTO;
+import com.demo.grpc_client.dto.request.MemberSignUpRequestDTO;
+import com.demo.grpc_client.dto.response.ResponseMemberDTO;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

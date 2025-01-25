@@ -1,4 +1,4 @@
-package com.demo.grpc_client.dto;
+package com.demo.grpc_client.dto.request;
 
 import lombok.*;
 
