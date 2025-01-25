@@ -237,4 +237,5 @@ src/main/generated/*
 application-dev.yml
 
 # IDE files
-_pycache_/
+_pycache_/*
+*.pyc
