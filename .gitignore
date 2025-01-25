@@ -235,3 +235,6 @@ src/main/generated/*
 
 # Local development configuration
 application-dev.yml
+
+# IDE files
+_pycache_/
