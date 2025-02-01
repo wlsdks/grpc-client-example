@@ -8,7 +8,7 @@ app:
 
 spring:
   application:
-    name: performance-test-client
+    name: grpc-client-server
 
 grpc:
   client:
