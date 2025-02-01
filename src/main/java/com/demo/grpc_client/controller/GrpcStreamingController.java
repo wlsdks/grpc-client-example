@@ -1,4 +1,4 @@
-package com.demo.grpc_client.controller.performance;
+package com.demo.grpc_client.controller;
 
 import com.demo.grpc_client.service.GrpcStreamingService;
 import lombok.RequiredArgsConstructor;
@@ -7,15 +7,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * GrpcStreamingTestController
- * <p>
- * 이 컨트롤러는 gRPC 스트리밍 요청 테스트를 제공합니다.
- */
 @RequestMapping("/test")
 @RequiredArgsConstructor
 @RestController
-public class GrpcStreamingTestController {
+public class GrpcStreamingController {
 
     private final GrpcStreamingService grpcStreamingService;
 
