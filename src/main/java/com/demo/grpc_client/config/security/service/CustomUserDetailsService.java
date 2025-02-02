@@ -2,7 +2,6 @@ package com.demo.grpc_client.config.security.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,10 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .username(username)
                 .password("") // 클라이언트에서는 비밀번호 검증이 필요 없음
                 .authorities(Set.of(new SimpleGrantedAuthority("ROLE_USER")))
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(false)
                 .build();
     }
 
