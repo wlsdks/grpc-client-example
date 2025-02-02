@@ -12,6 +12,9 @@ spring:
 
 grpc:
   client:
+    default:
+      address: static://localhost:50051
+      negotiationType: PLAINTEXT
     member-service:
       address: static://localhost:50051
       negotiationType: PLAINTEXT
