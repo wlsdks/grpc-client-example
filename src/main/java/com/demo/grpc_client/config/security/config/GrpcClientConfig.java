@@ -16,11 +16,11 @@ public class GrpcClientConfig {
     private final ServerTokenUtil serverTokenUtil;
     private final ServerProperties serverProperties;
 
-    @GrpcGlobalClientInterceptor
-    public ClientInterceptor userTokenInterceptor() {
-        // 기존의 사용자 JWT 토큰을 처리하는 인터셉터
-        return new GrpcClientInterceptor();
-    }
+//    @GrpcGlobalClientInterceptor
+//    public ClientInterceptor userTokenInterceptor() {
+//        // 기존의 사용자 JWT 토큰을 처리하는 인터셉터
+//        return new GrpcClientInterceptor();
+//    }
 
     @GrpcGlobalClientInterceptor
     public ClientInterceptor serverTokenInterceptor() {
