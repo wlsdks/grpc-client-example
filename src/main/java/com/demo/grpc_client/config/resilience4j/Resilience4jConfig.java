@@ -14,17 +14,24 @@ public class Resilience4jConfig {
     @Bean
     public CircuitBreakerConfig circuitBreakerConfig() {
         return CircuitBreakerConfig.custom()
-                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED) // 호출 횟수 기반
-                .failureRateThreshold(50)                                  // 실패율 50% 이상일 때 Circuit Open
-                .waitDurationInOpenState(java.time.Duration.ofSeconds(5))  // 5초 동안 Circuit Open 상태 유지 (이후 Half-Open)
-                .permittedNumberOfCallsInHalfOpenState(5)                  // Half-Open 상태에서 최대 5개의 호출 허용
-                .slidingWindowSize(10)                                     // 통계 집계에 사용할 최근 호출 횟수 (10개)
-                .automaticTransitionFromOpenToHalfOpenEnabled(true) // Open -> Half-Open 자동 전환 활성화
+                // 호출 횟수 기반 슬라이딩 윈도우 (최근 10회 호출 기준)
+                .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.COUNT_BASED)
+                // 실패율 50% 이상이면 OPEN 상태로 전환
+                .failureRateThreshold(50)
+                // OPEN 상태에서 5초 동안 호출 차단 후 HALF_OPEN 상태로 전환
+                .waitDurationInOpenState(java.time.Duration.ofSeconds(5))
+                // HALF_OPEN 상태에서 최대 5개 호출 허용
+                .permittedNumberOfCallsInHalfOpenState(5)
+                // 최근 10회 호출을 기준으로 통계 집계
+                .slidingWindowSize(10)
+                // OPEN 상태에서 HALF_OPEN으로 자동 전환 활성화
+                .automaticTransitionFromOpenToHalfOpenEnabled(true)
+                // FeignException, ConnectException, RuntimeException을 실패 예외로 기록
                 .recordExceptions(FeignException.class, ConnectException.class, RuntimeException.class)
                 .build();
     }
 
-    // 기본 설정으로 레지스트리 생성
+    // 위 설정을 기반으로 CircuitBreakerRegistry를 생성
     @Bean
     public CircuitBreakerRegistry circuitBreakerRegistry(CircuitBreakerConfig config) {
         return CircuitBreakerRegistry.of(config);
