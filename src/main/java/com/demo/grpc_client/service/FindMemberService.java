@@ -22,7 +22,7 @@ public class FindMemberService {
 
     @PostConstruct
     public void init() {
-        feignCircuitBreaker = circuitBreakerRegistry.circuitBreaker("member-service");
+        feignCircuitBreaker = circuitBreakerRegistry.circuitBreaker("feignCircuitBreaker");
     }
 
     /**
