@@ -44,6 +44,7 @@ dependencies {
 	// spring
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.4.2'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
@@ -51,6 +52,9 @@ dependencies {
 
 	// feign client
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// circuit breaker
+	implementation 'org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j'
 
 	// grpc 프로토콜 버터를 사용하기 위한 핵심 라이브러리 (Protobuf 메시지의 직렬화 및 역직렬화를 지원합니다.)
 	implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
