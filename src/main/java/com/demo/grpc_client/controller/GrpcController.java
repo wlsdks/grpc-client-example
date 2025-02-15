@@ -1,6 +1,7 @@
 package com.demo.grpc_client.controller;
 
 import com.demo.grpc_client.client.grpc.GrpcMemberClient;
+import com.demo.grpc_client.client.grpc.GrpcMemberClientAnnotation;
 import com.demo.grpc_client.dto.response.ResponseMemberDTO;
 import com.demo.grpc_client.mapper.GrpcMemberMapper;
 import com.test.member.grpc.MemberProto;
@@ -20,6 +21,7 @@ public class GrpcController {
 
     private final GrpcMemberClient grpcMemberClient;
     private final GrpcMemberMapper grpcMemberMapper;
+    private final GrpcMemberClientAnnotation grpcMemberClientAnnotation;
 
     /**
      * [gRPC] HTTP 요청 -> gRPC 호출 -> 원격 gRPC 서버 -> 응답
@@ -33,7 +35,9 @@ public class GrpcController {
 
         // 1) gRPC 클라이언트 호출
         try {
-            MemberProto.MemberResponse response = grpcMemberClient.getMemberById(memberId);
+//            MemberProto.MemberResponse response = grpcMemberClient.getMemberById(memberId);
+            MemberProto.MemberResponse response = grpcMemberClientAnnotation.getMemberById(memberId);
+
             ResponseMemberDTO responseMemberDTO = grpcMemberMapper.protoToDto(response);
             log.trace("[gRPC TEST] 응답 - ID={}, email={}", responseMemberDTO.getId(), responseMemberDTO.getEmail());
 
