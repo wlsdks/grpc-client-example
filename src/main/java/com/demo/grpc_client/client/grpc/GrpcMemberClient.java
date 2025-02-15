@@ -53,11 +53,10 @@ public class GrpcMemberClient {
         Supplier<MemberProto.MemberResponse> decoratedSupplier =
                 CircuitBreaker.decorateSupplier(grpcCircuitBreaker, () -> performGrpcCall(memberId));
 
-        // Varv 라이브러리의 Try 클래스를 사용하여 예외 처리
+        // Vavr 라이브러리의 Try 클래스를 사용하여 예외 처리
         return Try.ofSupplier(decoratedSupplier)
                 .recover(throwable -> {
-                    log.error("gRPC 호출 실패 또는 서킷 브레이커 오픈 - memberId={}, fallback 응답 반환, error={}",
-                            memberId, throwable.getMessage());
+                    log.error("gRPC 호출 실패 또는 서킷 브레이커 오픈 - memberId={}, fallback 응답 반환", memberId);
                     return getFallbackResponse();
                 })
                 .get();
