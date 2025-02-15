@@ -50,6 +50,9 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// vavr
+	implementation 'io.vavr:vavr:0.10.6'
+
 	// feign client
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
