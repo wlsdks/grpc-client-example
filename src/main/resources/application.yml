@@ -10,6 +10,21 @@ spring:
   application:
     name: grpc-client-server
 
+#resilience4j:
+#  circuitbreaker:
+#    instances:
+#      member-service:
+#        slidingWindowType: COUNT_BASED
+#        slidingWindowSize: 10
+#        failureRateThreshold: 50
+#        waitDurationInOpenState: 5s
+#        permittedNumberOfCallsInHalfOpenState: 5
+#        automaticTransitionFromOpenToHalfOpenEnabled: true
+#        recordExceptions:
+#          - feign.FeignException
+#          - java.net.ConnectException
+#          - java.lang.RuntimeException
+
 grpc:
   client:
     default:
