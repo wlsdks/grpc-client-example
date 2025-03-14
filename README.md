@@ -113,14 +113,17 @@ sequenceDiagram
     end
 ```
 
-## 🛣️ 통신 경로 비교
+## 🛣️ 통신 경로 비교 (REST vs gRPC)
 
 ```mermaid
 graph TB
     subgraph "REST 경로"
         A[외부 클라이언트] --> B[HTTP API] --> C[Feign Client] --> D[REST Server] --> E[DB 조회] --> F[HTTP 응답]
     end
-    
+```
+
+```mermaid
+graph TB
     subgraph "gRPC 경로"
         G[외부 클라이언트] --> H[HTTP API] --> I[gRPC Client] --> J[gRPC Server] --> K[DB 조회] --> L[gRPC 응답]
     end
